@@ -1497,6 +1497,8 @@ static GstFlowReturn gst_zedsrc_fill(GstPushSrc *psrc, GstBuffer *buf)
     }
     // <---- Mats retrieving
 
+    std::cout << "zedsrc: finished retrieving mat(s)" << std::endl;
+
     // ----> Memory copy
     if (src->stream_type == GST_ZEDSRC_DEPTH_16)
     {
@@ -1542,6 +1544,8 @@ static GstFlowReturn gst_zedsrc_fill(GstPushSrc *psrc, GstBuffer *buf)
         memcpy(minfo.data, left_img.getPtr<sl::uchar4>(), minfo.size);
     }
     // <---- Memory copy
+
+    std::cout << "zedsrc: finished memcpy" << std::endl;
 
     // ----> Info metadata
     sl::CameraInformation cam_info = src->zed.getCameraInformation();
