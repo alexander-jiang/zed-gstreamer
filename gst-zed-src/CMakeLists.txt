@@ -8,14 +8,19 @@ set(SOURCES
     gstzedsrc.cpp
     )
     
-set(HEADERS gstzedsrc.h,slGst.h)
+set(HEADERS
+    gstzedsrc.h
+    slGst.h
+    )
 
 include_directories(${CUDA_INCLUDE_DIRS})
 include_directories(${ZED_INCLUDE_DIRS})
+include_directories(/usr/src/jetson_multimedia_api/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 link_directories(${ZED_LIBRARY_DIR})
 link_directories(${CUDA_LIBRARY_DIRS})
+link_directories(/usr/local/cuda/lib64)
 link_directories(${LIBRARY_INSTALL_DIR})
 
 set(libname gstzedsrc)

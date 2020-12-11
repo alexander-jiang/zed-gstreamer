@@ -483,7 +483,7 @@ static void gst_zedsrc_class_init(GstZedSrcClass *klass)
     gst_element_class_set_static_metadata(gstelement_class,
                                           "ZED Camera Source",
                                           "Source/Video",
-                                          "Stereolabs ZED Camera source",
+                                          "Stereolabs ZED Camera source (modified to use GPU mat)",
                                           "Stereolabs <support@stereolabs.com>");
 
     gstbasesrc_class->start = GST_DEBUG_FUNCPTR(gst_zedsrc_start);
