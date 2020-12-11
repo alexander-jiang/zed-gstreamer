@@ -23,6 +23,7 @@
 #include <gst/base/gstpushsrc.h>
 #include <gst/video/video.h>
 
+#include "slGst.h"
 #include "gstzedsrc.h"
 #include "gst-zed-meta/gstzedmeta.h"
 
@@ -1413,7 +1414,8 @@ static GstFlowReturn gst_zedsrc_fill( GstPushSrc * psrc, GstBuffer * buf )
     // <---- Clock update
 
     // Memory mapping
-    if( FALSE==gst_buffer_map( buf, &minfo, GST_MAP_WRITE ) )
+    // TODO convert the sl::Mat to the GstBuffer here?
+    if (FALSE == gst_buffer_map(buf, &minfo, GST_MAP_WRITE))
     {
         GST_ELEMENT_ERROR (src, RESOURCE, FAILED,
                            ("Failed to map buffer for writing" ), (NULL));
@@ -1428,16 +1430,18 @@ static GstFlowReturn gst_zedsrc_fill( GstPushSrc * psrc, GstBuffer * buf )
     // ----> Mats retrieving
     if(src->stream_type== GST_ZEDSRC_ONLY_LEFT)
     {
-        ret = src->zed.retrieveImage(left_img, sl::VIEW::LEFT, sl::MEM::CPU );
+        ret = src->zed.retrieveImage(left_img, sl::VIEW::LEFT, sl::MEM::GPU);
+        // TODO extract wall timestamp
+        // ts = left_img.timestamp
     }
     else if(src->stream_type== GST_ZEDSRC_ONLY_RIGHT)
     {
-        ret = src->zed.retrieveImage(left_img, sl::VIEW::RIGHT, sl::MEM::CPU );
+        ret = src->zed.retrieveImage(left_img, sl::VIEW::RIGHT, sl::MEM::GPU);
     }
     else if(src->stream_type== GST_ZEDSRC_LEFT_RIGHT)
     {
-        ret = src->zed.retrieveImage(left_img, sl::VIEW::LEFT, sl::MEM::CPU );
-        ret = src->zed.retrieveImage(right_img, sl::VIEW::RIGHT, sl::MEM::CPU );
+        ret = src->zed.retrieveImage(left_img, sl::VIEW::LEFT, sl::MEM::GPU);
+        ret = src->zed.retrieveImage(right_img, sl::VIEW::RIGHT, sl::MEM::GPU);
     }
     else if(src->stream_type== GST_ZEDSRC_DEPTH_16)
     {
@@ -1449,8 +1453,8 @@ static GstFlowReturn gst_zedsrc_fill( GstPushSrc * psrc, GstBuffer * buf )
     }
     else if(src->stream_type== GST_ZEDSRC_LEFT_DEPTH)
     {
-        ret = src->zed.retrieveImage(left_img, sl::VIEW::LEFT, sl::MEM::CPU );
-        ret = src->zed.retrieveMeasure(depth_data, sl::MEASURE::DEPTH, sl::MEM::CPU );
+        ret = src->zed.retrieveImage(left_img, sl::VIEW::LEFT, sl::MEM::GPU);
+        ret = src->zed.retrieveMeasure(depth_data, sl::MEASURE::DEPTH, sl::MEM::CPU);
     }
 
     if( ret!=sl::ERROR_CODE::SUCCESS )

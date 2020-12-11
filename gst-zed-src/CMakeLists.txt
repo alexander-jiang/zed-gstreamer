@@ -8,9 +8,7 @@ set(SOURCES
     gstzedsrc.cpp
     )
     
-set(HEADERS
-    gstzedsrc.h
-    )
+set(HEADERS gstzedsrc.h,slGst.h)
 
 include_directories(${CUDA_INCLUDE_DIRS})
 include_directories(${ZED_INCLUDE_DIRS})
