@@ -1541,7 +1541,11 @@ static GstFlowReturn gst_zedsrc_fill(GstPushSrc *psrc, GstBuffer *buf)
     }
     else
     {
-        memcpy(minfo.data, left_img.getPtr<sl::uchar4>(), minfo.size);
+        // TODO the segfault occurs here!
+        // replace with cudaMemCpy?
+        // memcpy(minfo.data, left_img.getPtr<sl::uchar4>(), minfo.size);
+
+        cudaMemcpy(minfo.data, left_img.getPtr<sl::uchar4>(sl::MEM::GPU), minfo.size, cudaMemcpyDeviceToDevice);
     }
     // <---- Memory copy
 
