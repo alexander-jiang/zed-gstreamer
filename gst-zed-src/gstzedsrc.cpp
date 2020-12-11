@@ -1439,6 +1439,11 @@ static GstFlowReturn gst_zedsrc_fill(GstPushSrc *psrc, GstBuffer *buf)
     // <---- Clock update
 
     // Memory mapping
+    if (gst_buffer_is_writable(buf)) {
+        std::cout << "GstBuffer is writable!" << std::endl;
+    } else {
+        std::cout << "GstBuffer is not writable!" << std::endl;
+    }
     // TODO convert the sl::Mat to the GstBuffer here?
     if (FALSE == gst_buffer_map(buf, &minfo, GST_MAP_WRITE))
     {
@@ -1456,6 +1461,7 @@ static GstFlowReturn gst_zedsrc_fill(GstPushSrc *psrc, GstBuffer *buf)
     // ----> Mats retrieving
     if (src->stream_type == GST_ZEDSRC_ONLY_LEFT)
     {
+        std::cout << "zedsrc stream type = left only" << std::endl;
         ret = src->zed.retrieveImage(left_img, sl::VIEW::LEFT, sl::MEM::GPU);
         // TODO extract wall timestamp
         // ts = left_img.timestamp
