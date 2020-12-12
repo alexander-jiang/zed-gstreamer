@@ -1448,10 +1448,21 @@ static GstFlowReturn gst_zedsrc_fill(GstPushSrc *psrc, GstBuffer *buf)
         return GST_FLOW_ERROR;
     }
 
+    // void *newMatPtr = NULL;
+    // if (cudaMalloc(&newMatPtr, minfo.size) != cudaSuccess)
+    // {
+    //     std::cout << "Error in cudaMalloc!" << std::endl;
+    // }
+    // std::cout << "cudaMalloc'd ptr: " << newMatPtr << std::endl;
+
     // ZED Mats
     sl::Mat left_img;
     sl::Mat right_img;
     sl::Mat depth_data;
+
+    // left_img.alloc(src->zed.getResolution(), sl::MAT_TYPE::U8_C4, sl::MEM::GPU);
+    // std::cout << "left_img mat isInit: " << left_img.isInit() << std::endl;
+    // std::cout << "left_img mat getPtr: " << left_img.getPtr<sl::uchar4>(sl::MEM::GPU) << std::endl;
 
     // ----> Mats retrieving
     if (src->stream_type == GST_ZEDSRC_ONLY_LEFT)
@@ -1544,6 +1555,7 @@ static GstFlowReturn gst_zedsrc_fill(GstPushSrc *psrc, GstBuffer *buf)
 
         std::cout << "left_img mat isMemoryOwner: " << left_img.isMemoryOwner() << std::endl;
         //std::cout << "left_img mat data type: " << left_img.getDataType() << std::endl;
+        std::cout << "left_img mat getStepBytes: " << left_img.getStepBytes(sl::MEM::GPU) << std::endl;
 
         // need to allocate more GPU memory as the sl::Mat left_img.getPtr() address is always the same
         // TODO when does this GPU memory get freed?
