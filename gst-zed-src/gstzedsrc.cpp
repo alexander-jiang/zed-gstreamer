@@ -1545,7 +1545,7 @@ static GstFlowReturn gst_zedsrc_fill(GstPushSrc *psrc, GstBuffer *buf)
         std::cout << "left_img mat isMemoryOwner: " << left_img.isMemoryOwner() << std::endl;
         //std::cout << "left_img mat data type: " << left_img.getDataType() << std::endl;
 
-        // need to allocate more GPU memory as the sl::Mat getPtr() address is always the same
+        // need to allocate more GPU memory as the sl::Mat left_img.getPtr() address is always the same
         // TODO when does this GPU memory get freed?
         void *newMatPtr = NULL;
         if (cudaMalloc(&newMatPtr, minfo.size) != cudaSuccess)
@@ -1607,9 +1607,12 @@ static GstFlowReturn gst_zedsrc_fill(GstPushSrc *psrc, GstBuffer *buf)
         std::cout << "original mat ptr: " << left_img.getPtr<sl::uchar4>(sl::MEM::GPU) << std::endl;
         std::cout << "copied mat ptr: " << newMat.getPtr<sl::uchar4>(sl::MEM::GPU) << std::endl;
 
-        //std::cout << "freeing original mat..." << std::endl;
-        //left_img.free(sl::MEM::GPU);
-        cudaMemcpy(minfo.data, newMat.getPtr<sl::uchar4>(sl::MEM::GPU), minfo.size, cudaMemcpyDeviceToDevice);
+        // cudaMemcpy(minfo.data, newMat.getPtr<sl::uchar4>(sl::MEM::GPU), minfo.size, cudaMemcpyDeviceToDevice);
+        cudaMemcpy(minfo.data, newMatPtr, minfo.size, cudaMemcpyDeviceToDevice);
+
+        std::cout << "freeing original and left mats..." << std::endl;
+        newMat.free(sl::MEM::GPU);
+        left_img.free(sl::MEM::GPU);
     }
     // <---- Memory copy
 
