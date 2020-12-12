@@ -1555,7 +1555,9 @@ static GstFlowReturn gst_zedsrc_fill(GstPushSrc *psrc, GstBuffer *buf)
 
         std::cout << "left_img mat isMemoryOwner: " << left_img.isMemoryOwner() << std::endl;
         //std::cout << "left_img mat data type: " << left_img.getDataType() << std::endl;
-        std::cout << "left_img mat getStepBytes: " << left_img.getStepBytes(sl::MEM::GPU) << std::endl;
+        //std::cout << "left_img mat getStepBytes: " << left_img.getStepBytes(sl::MEM::GPU) << std::endl;
+        //std::cout << "left_img mat resolution.width: " << left_img.getResolution().width << std::endl;
+        //std::cout << "left_img mat resolution.height: " << left_img.getResolution().height << std::endl;
 
         // need to allocate more GPU memory as the sl::Mat left_img.getPtr() address is always the same
         // TODO when does this GPU memory get freed?
