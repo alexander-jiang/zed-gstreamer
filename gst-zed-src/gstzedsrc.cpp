@@ -1460,7 +1460,7 @@ static GstFlowReturn gst_zedsrc_fill(GstPushSrc *psrc, GstBuffer *buf)
         ret = src->zed.retrieveImage(left_img, sl::VIEW::LEFT, sl::MEM::GPU);
         // TODO extract wall timestamp
         // ts = left_img.timestamp
-	//std::cout << "timestamp = " << left_img.timestamp << std::endl;
+        //std::cout << "timestamp = " << left_img.timestamp << std::endl;
     }
     else if (src->stream_type == GST_ZEDSRC_ONLY_RIGHT)
     {
@@ -1539,79 +1539,82 @@ static GstFlowReturn gst_zedsrc_fill(GstPushSrc *psrc, GstBuffer *buf)
     {
         // TODO need to resolve this issue
         // replace with cudaMemCpy?
-	//std::cout << left_img.getPtr<sl::uchar4>() << std::endl;
+        //std::cout << left_img.getPtr<sl::uchar4>() << std::endl;
         //memcpy(minfo.data, left_img.getPtr<sl::uchar4>(), minfo.size);
 
-	std::cout << "left_img mat isMemoryOwner: " << left_img.isMemoryOwner() << std::endl;
+        std::cout << "left_img mat isMemoryOwner: " << left_img.isMemoryOwner() << std::endl;
         //std::cout << "left_img mat data type: " << left_img.getDataType() << std::endl;
 
-	// need to allocate more GPU memory as the sl::Mat getPtr() address is always the same
-	// TODO when does this GPU memory get freed?
-	void *newMatPtr = NULL;
-	if (cudaMalloc(&newMatPtr, minfo.size) != cudaSuccess) {
-	    std::cout << "Error in cudaMalloc!" << std::endl;
-	}
-	std::cout << "cudaMalloc'd ptr: " << newMatPtr << std::endl;
-	
+        // need to allocate more GPU memory as the sl::Mat getPtr() address is always the same
+        // TODO when does this GPU memory get freed?
+        void *newMatPtr = NULL;
+        if (cudaMalloc(&newMatPtr, minfo.size) != cudaSuccess)
+        {
+            std::cout << "Error in cudaMalloc!" << std::endl;
+        }
+        std::cout << "cudaMalloc'd ptr: " << newMatPtr << std::endl;
+
         sl::ERROR_CODE err;
-	sl::Mat newMat = sl::Mat(left_img.getResolution(), left_img.getDataType(), 
-	        (sl::uchar1 *) newMatPtr, left_img.getStepBytes(sl::MEM::GPU), sl::MEM::GPU);
-	std::cout << "new mat ptr: " << newMat.getPtr<sl::uchar4>(sl::MEM::GPU) << std::endl;
-	std::cout << "new mat isInit: " << newMat.isInit() << std::endl;
-	
-	// the clone() doesn't remove ownership from original mat, makes the newMat a memory owner, 
-	// but the newMat pointer is no longer the same as the cudaMalloc pointer
+        sl::Mat newMat = sl::Mat(left_img.getResolution(), left_img.getDataType(),
+                                 (sl::uchar1 *)newMatPtr, left_img.getStepBytes(sl::MEM::GPU), sl::MEM::GPU);
+        std::cout << "new mat ptr: " << newMat.getPtr<sl::uchar4>(sl::MEM::GPU) << std::endl;
+        std::cout << "new mat isInit: " << newMat.isInit() << std::endl;
+
+        // the clone() doesn't remove ownership from original mat, makes the newMat a memory owner,
+        // but the newMat pointer is no longer the same as the cudaMalloc pointer
         /*
-	std::cout << "trying to clone() to new mat..." << std::endl;
+        std::cout << "trying to clone() to new mat..." << std::endl;
         err = newMat.clone(left_img);
-	if (err == sl::ERROR_CODE::FAILURE) {
-	    std::cout << "clone to newMat failed!" << std::endl;
-	}
-	*/
-	
-	// the move() removes memory ownership from the original mat, makes the newMat a memory owner,
-	// but the newMat pointer is the same as the original mat
-	/*
-	std::cout << "trying to move() to new mat..." << std::endl;
-	err = left_img.move(newMat);
-	if (err == sl::ERROR_CODE::FAILURE) {
-	    std::cout << "move to newMat failed!" << std::endl;
-	}
-	*/
+        if (err == sl::ERROR_CODE::FAILURE) {
+            std::cout << "clone to newMat failed!" << std::endl;
+        }
+        */
 
-	// the copyTo() doesn't remove ownership from original mat, doesn't make the newMat a memory owner,
-	// and the newMat pointer is consistent with cudaMalloc pointer
-	std::cout << "trying to copyTo() to new mat..." << std::endl;
-	err = left_img.copyTo(newMat, sl::COPY_TYPE::GPU_GPU);
-	if (err == sl::ERROR_CODE::FAILURE) {
-	    std::cout << "copyTo from sl::Mat left_img to newMat failed!" << std::endl;
-	}
+        // the move() removes memory ownership from the original mat, makes the newMat a memory owner,
+        // but the newMat pointer is the same as the original mat
+        /*
+        std::cout << "trying to move() to new mat..." << std::endl;
+        err = left_img.move(newMat);
+        if (err == sl::ERROR_CODE::FAILURE) {
+            std::cout << "move to newMat failed!" << std::endl;
+        }
+        */
 
-	sl::uchar4 originalMatValue, newMatValue;
-	left_img.getValue(0, 0, &originalMatValue, sl::MEM::GPU);
-	newMat.getValue(0, 0, &newMatValue, sl::MEM::GPU);
-	std::cout << "original mat (0, 0) value: " << originalMatValue << std::endl;
-	std::cout << "new mat (0, 0) value: " << newMatValue << std::endl;
+        // the copyTo() doesn't remove ownership from original mat, doesn't make the newMat a memory owner,
+        // and the newMat pointer is consistent with cudaMalloc pointer
+        std::cout << "trying to copyTo() to new mat..." << std::endl;
+        err = left_img.copyTo(newMat, sl::COPY_TYPE::GPU_GPU);
+        if (err == sl::ERROR_CODE::FAILURE)
+        {
+            std::cout << "copyTo from sl::Mat left_img to newMat failed!" << std::endl;
+        }
 
-	// The ZED SDK docs say this constructor calls alloc(), which 'erases previously allocated memory'
+        sl::uchar4 originalMatValue, newMatValue;
+        left_img.getValue(0, 0, &originalMatValue, sl::MEM::GPU);
+        newMat.getValue(0, 0, &newMatValue, sl::MEM::GPU);
+        std::cout << "original mat (0, 0) value: " << originalMatValue << std::endl;
+        std::cout << "new mat (0, 0) value: " << newMatValue << std::endl;
+
+        // The ZED SDK docs say this constructor calls alloc(), which 'erases previously allocated memory'
         //sl::Mat allocMat = sl::Mat(left_img.getResolution(), left_img.getDataType(), sl::MEM::GPU);
-	//std::cout << "alloc mat ptr: " << allocMat.getPtr<sl::uchar4>(sl::MEM::GPU) << std::endl;
+        //std::cout << "alloc mat ptr: " << allocMat.getPtr<sl::uchar4>(sl::MEM::GPU) << std::endl;
         //std::cout << "alloc mat isMemoryOwner: " << allocMat.isMemoryOwner() << std::endl;
 
-	std::cout << "left_img mat isMemoryOwner: " << left_img.isMemoryOwner() << std::endl;
-	std::cout << "newMat isMemoryOwner: " << newMat.isMemoryOwner() << std::endl;
-	std::cout << "newMat isInit: " << newMat.isInit() << std::endl;
-	
-        std::cout << "original mat ptr: " << left_img.getPtr<sl::uchar4>(sl::MEM::GPU) << std::endl;
-	std::cout << "copied mat ptr: " << newMat.getPtr<sl::uchar4>(sl::MEM::GPU) << std::endl;
+        std::cout << "left_img mat isMemoryOwner: " << left_img.isMemoryOwner() << std::endl;
+        std::cout << "newMat isMemoryOwner: " << newMat.isMemoryOwner() << std::endl;
+        std::cout << "newMat isInit: " << newMat.isInit() << std::endl;
 
-	//std::cout << "freeing original mat..." << std::endl;
+        std::cout << "original mat ptr: " << left_img.getPtr<sl::uchar4>(sl::MEM::GPU) << std::endl;
+        std::cout << "copied mat ptr: " << newMat.getPtr<sl::uchar4>(sl::MEM::GPU) << std::endl;
+
+        //std::cout << "freeing original mat..." << std::endl;
         //left_img.free(sl::MEM::GPU);
-	cudaMemcpy(minfo.data, newMat.getPtr<sl::uchar4>(sl::MEM::GPU), minfo.size, cudaMemcpyDeviceToDevice);
+        cudaMemcpy(minfo.data, newMat.getPtr<sl::uchar4>(sl::MEM::GPU), minfo.size, cudaMemcpyDeviceToDevice);
     }
     // <---- Memory copy
 
-    std::cout << "zedsrc: finished memcpy\n\n" << std::endl;
+    std::cout << "zedsrc: finished memcpy\n\n"
+              << std::endl;
 
     // ----> Info metadata
     sl::CameraInformation cam_info = src->zed.getCameraInformation();
