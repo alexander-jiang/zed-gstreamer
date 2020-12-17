@@ -1818,6 +1818,7 @@ static GstFlowReturn gst_zedsrc_fill( GstPushSrc * psrc, GstBuffer * buf )
                                             reference,
                                             reference_timestamp,
                                             GST_CLOCK_TIME_NONE);
+    gst_caps_unref(reference);
     // <---- Timestamp meta-data
 
     // Buffer release
