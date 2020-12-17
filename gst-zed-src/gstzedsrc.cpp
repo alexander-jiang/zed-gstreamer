@@ -1510,7 +1510,7 @@ static GstFlowReturn gst_zedsrc_fill( GstPushSrc * psrc, GstBuffer * buf )
 
     sl::Timestamp ts;
     // ----> Timestamp retrieving
-    ts = left_image.timestamp;
+    ts = left_img.timestamp;
     // <---- Timestamp retrieving
 
 
