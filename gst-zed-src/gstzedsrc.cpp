@@ -1507,6 +1507,13 @@ static GstFlowReturn gst_zedsrc_fill( GstPushSrc * psrc, GstBuffer * buf )
     }
     // <---- Mats retrieving
 
+
+    sl::Timestamp ts;
+    // ----> Timestamp retrieving
+    ts = left_image.timestamp;
+    // <---- Timestamp retrieving
+
+
     // ----> Memory copy
     if(src->stream_type== GST_ZEDSRC_DEPTH_16)
     {
@@ -1804,6 +1811,13 @@ static GstFlowReturn gst_zedsrc_fill( GstPushSrc * psrc, GstBuffer * buf )
                                                 clock_time);
     GST_BUFFER_DTS(buf) = GST_BUFFER_TIMESTAMP(buf);
     GST_BUFFER_OFFSET(buf) = temp_ugly_buf_index++;
+
+    GstCaps *reference = gst_caps_from_string("timestamp/x-metavision-stream");
+    GstClockTime reference_timestamp = static_cast<uint64_t>(ts.getNanoseconds());
+    gst_buffer_add_reference_timestamp_meta (buf,
+                                            reference,
+                                            reference_timestamp,
+                                            GST_CLOCK_TIME_NONE);
     // <---- Timestamp meta-data
 
     // Buffer release
